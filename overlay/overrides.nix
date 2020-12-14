@@ -79,6 +79,7 @@ in rec {
     rand_os
     rdkafka-sys
     ring
+    yansi-term
     zmq-sys
   ];
 
@@ -258,6 +259,13 @@ in rec {
       };
     }
     else nullOverride;
+
+  yansi-term = pkgs.rustBuilder.rustLib.makeOverride {
+    name = "yansi-term";
+    overrideAttrs = drv: {
+      propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [ pkgs.zlib ];
+    };
+  };
 
   zmq-sys = makeOverride {
     name = "zmq-sys";
