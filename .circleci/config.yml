@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build-classic:
     docker:
       - image: nixorg/nix:circleci
     resource_class: medium
@@ -25,3 +25,42 @@ jobs:
           key: nix-store
           paths:
             - /nix
+  build-flakes:
+    docker:
+      - image: nixorg/nix:circleci
+    resource_class: medium
+    steps:
+      - checkout
+      - restore_cache:
+          key: nix-store
+      - run:
+          name: Build
+          command: |
+            nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+            nix-channel --update
+            nix-env -iA nixpkgs.nixUnstable
+            mkdir -p ~/.config/nix
+            echo 'experimental-features = nix-command flakes' > ~/.config/nix/nix.conf
+            nix build . --print-build-logs --show-trace
+            nix build .#ci --print-build-logs --show-trace
+            bash -c "<<EOS
+            for example in examples-flakes/*
+              cd example
+              nix build . --print-build-logs --show-trace
+              cd -
+            done
+            EOS
+            "
+          no_output_timeout: 5h
+      - save_cache:
+          key: nix-store
+          paths:
+            - /nix
+workflows:
+  version: 2
+  build-classic:
+    jobs:
+      - build-classic
+  build-flakes:
+    jobs:
+      - build-flakes
