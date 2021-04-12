@@ -89,7 +89,7 @@ let
       (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
         (concatLists [
           (attrValues dependencies)
-          (optionals (compileMode == "test") (attrValues devDependencies))
+          (optionals (compileMode == "test" || compileMode == "bench") (attrValues devDependencies))
           (attrValues buildDependencies)
         ])))
     runtimeDependencies buildtimeDependencies;
@@ -125,7 +125,7 @@ let
 
     dependencies = depMapToList dependencies;
     buildDependencies = depMapToList buildDependencies;
-    devDependencies = depMapToList (optionalAttrs (compileMode == "test") devDependencies);
+    devDependencies = depMapToList (optionalAttrs (compileMode == "test" || compileMode == "bench") devDependencies);
 
     extraRustcFlags =
       optionals (hostPlatformCpu != null) ([("-Ctarget-cpu=" + hostPlatformCpu)]) ++

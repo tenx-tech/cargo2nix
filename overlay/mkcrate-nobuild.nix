@@ -25,7 +25,7 @@ let
       (partition (drv: drv.stdenv.hostPlatform == stdenv.hostPlatform)
         (concatLists [
           (attrValues dependencies)
-          (optionals (compileMode == "test") (attrValues devDependencies))
+          (optionals (compileMode == "test" || compileMode == "bench") (attrValues devDependencies))
           (attrValues buildDependencies)
         ])))
     runtimeDependencies buildtimeDependencies;
