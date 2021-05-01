@@ -1,1 +1,1 @@
-with import ./. { crossSystem = null; }; shell
+with import ./. { crossSystem = (import <nixpkgs> {}).lib.systems.examples.musl64; }; shell
